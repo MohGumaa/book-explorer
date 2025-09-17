@@ -18,7 +18,6 @@ export function meta({}: Route.MetaArgs) {
   ];
 }
 
-const BASE_URL = "https://gutendex.com/books"
 
 export default function Home() {
     const [books, setBooks] = useState<Book[]>([])
@@ -29,9 +28,13 @@ export default function Home() {
     const [hasNext, setHasNext] = useState(false)
     const [hasPrevious, setHasPrevious] = useState(false)
 
+    // const BASE_URL = "http://localhost:5170/api/books"
+    const BASE_URL = import.meta.env.VITE_BASE_URL;
+
     const loadBooks = useCallback(async (newFilters: SearchFilters) => {
         setLoading(true);
         setError(null);
+        
 
         try {
             const params = new URLSearchParams({ page: String(newFilters.page || 1) });
@@ -41,7 +44,7 @@ export default function Home() {
 
             const url = `${BASE_URL}?${params.toString()}`;
 
-            console.log(url)
+            // console.log(url)
 
             const response = await fetch(url);
             if (!response.ok) {
@@ -50,7 +53,7 @@ export default function Home() {
 
             const data = await response.json();
 
-            console.log(data)
+            // console.log(data)
 
             setBooks(data.results);
             setTotalCount(data.count);

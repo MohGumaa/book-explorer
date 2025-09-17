@@ -21,7 +21,11 @@ const BookCard = ({ book} : {book: Book}) => {
         return authors.map((author) => author.name).join(", ")
     }
 
-    const coverUrl = getBookCoverUrl(book)
+    const coverUrl = getBookCoverUrl(book);
+
+    const handleAPIRoute = (book: Book) => {
+        return(`${import.meta.env.VITE_BASE_URL}/books/${book.id}`)
+    }
 
     return (
         <Card className="h-full flex flex-col hover:shadow-lg transition-all duration-200 group">
@@ -88,19 +92,23 @@ const BookCard = ({ book} : {book: Book}) => {
                     </div>
                 )}
 
-                <div className="mt-auto pt-3">
+                <div className="flex gap-2 mt-auto pt-3">
                     {getReadingUrl(book) ? (
-                        <Button className="w-full text-sm cursor-pointer" size="lg" onClick={() => window.open(getReadingUrl(book), "_blank")}>
+                        <Button className="flex-1 text-sm cursor-pointer" size="lg" onClick={() => window.open(getReadingUrl(book), "_blank")}>
                             <BookOpen className="w-4 h-4 mr-2" />
                             Read Now
                             <ExternalLink className="w-3 h-3 ml-2" />
                         </Button>
                     ) : (
-                        <Button className="w-full text-sm cursor-not-allowed" size="lg" disabled>
+                        <Button className="flex-1 text-sm cursor-not-allowed" size="lg" disabled>
                             <BookOpen className="w-4 h-4 mr-2" />
                             Not Available
                         </Button>
                     )}
+                    <Button variant="outline" className="px-3 cursor-pointer" size="lg" onClick={() => window.open(handleAPIRoute(book), "_blank")}>
+                        API END
+                        <ExternalLink className="w-4 h-4" />
+                    </Button>
                 </div>
             </CardContent>
         </Card>

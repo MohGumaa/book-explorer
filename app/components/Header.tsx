@@ -1,16 +1,26 @@
 import { BookOpen } from "lucide-react";
 import { Link } from "react-router"
+import { Button } from "~/components/ui/button";
+import { TrendingUp } from "lucide-react"
 
 const Header = ({children}: {children?: React.ReactNode}) => {
     return (
         <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
             <div className="container mx-auto px-4 py-4 overflow-x-hidden">
                 <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                    {/* LOGO */}
-                    <Link to="/" className="flex items-center gap-3">
-                        <BookOpen className="w-6 h-6 md:w-8 md:h-8" />
-                        <h1 className="text-xl md:text-2xl font-bold text-foreground">Book Explorer</h1>
-                    </Link>
+                    {/* LOGO && Link */}
+                    <div className="flex items-center justify-between md:gap-x-8">
+                        <Link to="/" className="flex items-center gap-3">
+                            <BookOpen className="w-6 h-6 md:w-8 md:h-8" />
+                            <h1 className="text-xl md:text-2xl font-bold text-foreground">Book Explorer</h1>
+                        </Link>
+                        <Link to="/popular">
+                            <Button  size="sm" className="flex items-center gap-2 cursor-pointer">
+                            <TrendingUp className="w-4 h-4" />
+                            <span className="inline">Popular</span>
+                            </Button>
+                        </Link>
+                    </div>
                     {children}
                 </div>
             </div>
