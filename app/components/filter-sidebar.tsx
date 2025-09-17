@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { Filter, X } from "lucide-react";
-import { Badge } from "~/components/ui/badge";
 import { Button } from "~/components/ui/button";
+// import { Separator } from "~/components/ui/separator"
 import { POPULAR_LANGUAGES } from "../../constants"
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 
-const FilterSidebar = () => {
+interface FilterSidebarProps {
+  onFilterChange: (filters: Partial<SearchFilters>) => void
+}
+
+const FilterSidebar = ({ onFilterChange }: FilterSidebarProps) => {
     const [selectedLanguages, setSelectedLanguages] = useState<string[]>([])
-    const [selectedTopic, setSelectedTopic] = useState<string>("")
 
     const handleLanguageToggle = (langCode: string) => {
         const newLanguages = selectedLanguages.includes(langCode)
@@ -15,16 +18,15 @@ const FilterSidebar = () => {
             : [...selectedLanguages, langCode]
 
         setSelectedLanguages(newLanguages)
-        // onFilterChange({ languages: newLanguages.length > 0 ? newLanguages : undefined })
+        onFilterChange({ languages: newLanguages.length > 0 ? newLanguages : undefined })
     }
 
     const clearAllFilters = () => {
         setSelectedLanguages([])
-        setSelectedTopic("")
-        // onFilterChange({ languages: undefined, topic: undefined })
+        onFilterChange({ languages: undefined })
     }
 
-    const hasActiveFilters = selectedLanguages.length > 0 || selectedTopic;
+    const hasActiveFilters = selectedLanguages.length > 0;
 
     return (
         <Card className="sticky top-24">
@@ -61,6 +63,29 @@ const FilterSidebar = () => {
                         ))}
                     </div>
                 </div>
+
+                {/* Active Filters Summary */}
+                {hasActiveFilters && (
+                <>
+                    {/* <Separator /> */}
+                    <div className="mt-10">
+                    <h3 className="font-medium mb-3">Active Filters</h3>
+                    <div className="space-y-2">
+                        {selectedLanguages.map((langCode) => {
+                        const lang = POPULAR_LANGUAGES.find((l) => l.code === langCode)
+                        return (
+                            <div key={langCode} className="flex items-center justify-between text-sm">
+                            <span>Language: {lang?.name}</span>
+                            <Button variant="ghost" size="sm" onClick={() => handleLanguageToggle(langCode)}>
+                                <X className="w-3 h-3" />
+                            </Button>
+                            </div>
+                        )
+                        })}
+                    </div>
+                    </div>
+                </>
+                )}
             </CardContent>
         </Card>
     )

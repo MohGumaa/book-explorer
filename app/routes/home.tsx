@@ -4,8 +4,12 @@ import BookCard from "~/components/BookCard";
 import BookCardSkeleton from "~/components/skeleton/book-card-skeleton";
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "~/components/ui/button";
+import { Alert, AlertDescription } from "~/components/ui/alert";
 import { BookOpen, ChevronLeft, ChevronRight, AlertCircle } from "lucide-react"
 import FilterSidebar from "~/components/filter-sidebar";
+import EmptyState from "~/components/empty-state";
+import SearchBar from "~/components/search-bar";
+import MobileLanguageMarquee from "~/components/mobile-language-marquee";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -32,13 +36,21 @@ export default function Home() {
         try {
             const params = new URLSearchParams({ page: String(newFilters.page || 1) });
             if (newFilters.search) params.append("search", newFilters.search);
+            if (newFilters.author) params.append("author", newFilters.author);
+            if (newFilters.languages && newFilters.languages.length > 0) params.append("languages", newFilters.languages.join(","));
 
-            const response = await fetch(`${BASE_URL}?${params.toString()}`);
+            const url = `${BASE_URL}?${params.toString()}`;
+
+            console.log(url)
+
+            const response = await fetch(url);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
             const data = await response.json();
+
+            console.log(data)
 
             setBooks(data.results);
             setTotalCount(data.count);
@@ -79,21 +91,24 @@ export default function Home() {
 
   return (
       <div>
-          <div className="min-h-screen bg-background">
+          <div className="min-h-screen bg-background overflow-x-hidden max-w-full">
               {/* HEADER */}
-              <Header/>
+              <Header>
+                <div className="w-full md:flex-1 md:max-w-md md:mx-8">
+                    <SearchBar onSearch={handleSearch} />
+                </div>
+              </Header>
 
               {/* CONTENT */}
-              <div className="container mx-auto px-4 py-6">
+              <div className="container mx-auto px-4 py-6 overflow-x-hidden">
                   <div className="flex gap-6">
                       {/* Sidebar - Hidden on mobile, shown on desktop */}
                       <aside className="w-96 flex-shrink-0 hidden lg:block">
-                          {/*<FilterSidebar onFilterChange={handleFilterChange} />*/}
-                          <FilterSidebar/>
+                          <FilterSidebar onFilterChange={handleFilterChange} />
                       </aside>
 
                       {/* Main Content */}
-                      <main className="flex-1">
+                      <main className="flex-1 overflow-x-hidden max-w-full">
                           {/* Results Header */}
                           <section className="mb-6">
                               <h2 className="text-lg md:text-xl font-semibold mb-2">
@@ -104,6 +119,22 @@ export default function Home() {
                               </p>
                           </section>
 
+                          {/* Mobile Language Marquee */}
+                          <MobileLanguageMarquee onFilterChange={handleFilterChange} />
+
+                          {/* Error State */}
+                            {error && (
+                            <Alert className="mb-6">
+                                <AlertCircle className="h-4 w-4" />
+                                <AlertDescription className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                                <span>{error}</span>
+                                <Button variant="outline" size="sm" onClick={() => loadBooks(filters)}>
+                                    Try Again
+                                </Button>
+                                </AlertDescription>
+                            </Alert>
+                            )}
+
                           {/* Loading State */}
                           {loading && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
@@ -112,6 +143,15 @@ export default function Home() {
                             ))}
                             </div>
                           )}
+
+                            {/* Empty State */}
+                            {!loading && !error && books.length === 0 && (
+                            <EmptyState
+                                type={filters.search || filters.languages || filters.topic ? "no-results" : "no-books"}
+                                searchTerm={filters.search}
+                                onClearSearch={handleClearSearch}
+                            />
+                            )}
 
                           {/* Books Grid */}
                           {!loading && !error && books.length > 0 && (
